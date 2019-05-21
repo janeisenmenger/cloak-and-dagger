@@ -55,6 +55,7 @@ class MainActivity : Activity() {
     }
 
     private fun firstWindow() {
+        return
         val layoutInflator = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = layoutInflator.inflate(R.layout.accessiblity_view, null)
 

