@@ -8,12 +8,13 @@ import android.graphics.PixelFormat
 import android.os.Bundle
 import android.widget.Toast
 import android.content.DialogInterface
+import android.os.Handler
 import android.util.Log
 import android.view.*
 import android.widget.TextView
 
 
-class EnableAccessibilityActivity  : Activity(){
+class EnableAccessibilityActivity  : Activity(), View.OnTouchListener {
 
     private var viewFullScreenGreyBottom : View? = null
     private var viewFullScreenGreyTop : View? = null
@@ -28,6 +29,21 @@ class EnableAccessibilityActivity  : Activity(){
 
     }
 
+    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+        if (event != null && event.rawY == 0.0f) {
+
+            this.viewFullScreenBlue?.visibility = View.GONE
+            this.viewFullScreenGreyTop?.visibility = View.GONE
+            this.viewFullScreenGreyBottom?.visibility = View.GONE
+            this.viewFullScreenGreySide?.visibility = View.GONE
+
+            finish()
+            return true
+        }
+
+        return false
+    }
+
     private fun draw_window() {
         val layoutInflator = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
@@ -37,6 +53,8 @@ class EnableAccessibilityActivity  : Activity(){
         this.viewFullScreenBlue = layoutInflator.inflate(R.layout.full_screen_blue, null)
 
         val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
+        this.viewFullScreenGreyTop?.setOnTouchListener(this)
 
         val windowParametersTop = WindowManager.LayoutParams(
             1080,
